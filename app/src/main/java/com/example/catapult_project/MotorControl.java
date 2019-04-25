@@ -20,7 +20,7 @@ import java.util.UUID;
 
 public class MotorControl extends AppCompatActivity {
     // Button from UI
-    Button full_a, half_a, release_a, disarm, disconnect;
+    Button full_a, half_a, release_a, disarm, disconnect, block;
     String address = null;
     // variable
     private ProgressDialog progress;
@@ -46,6 +46,7 @@ public class MotorControl extends AppCompatActivity {
         release_a = (Button)findViewById(R.id.button_release_arm);
         disarm= (Button)findViewById(R.id.button_disarm);
         disconnect=(Button)findViewById(R.id.button_disconnect);
+        block=(Button)findViewById(R.id.button_block);
 
         //start BT connection
         new ConnectBT().execute(); //Call the class to connect
@@ -92,6 +93,14 @@ public class MotorControl extends AppCompatActivity {
                 Disconnect();    //close connection
             }
         });
+        block.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                f_Block();    //close connection
+            }
+        });
     }
 
     //functions to be done for each button
@@ -117,7 +126,9 @@ public class MotorControl extends AppCompatActivity {
         {
             try
             {
+                Log.d("fullarmed_b","launch_1");
                 btSocket.getOutputStream().write("1".getBytes());
+                Log.d("fullarmed_b","launch");
             }
             catch (IOException e)
             {
@@ -133,6 +144,7 @@ public class MotorControl extends AppCompatActivity {
             try
             {
                 btSocket.getOutputStream().write("2".getBytes());
+                Log.d("halfarmed_b","launch");
             }
             catch (IOException e)
             {
@@ -161,6 +173,7 @@ public class MotorControl extends AppCompatActivity {
         {
             try
             {
+                Log.d("disarmed_b","launch_1");
                 btSocket.getOutputStream().write("3".getBytes());
             }
             catch (IOException e)
@@ -170,6 +183,20 @@ public class MotorControl extends AppCompatActivity {
         }
     }
 
+    private void f_Block()
+    {
+        if (btSocket!=null)
+        {
+            try
+            {
+                btSocket.getOutputStream().write("4".getBytes());
+            }
+            catch (IOException e)
+            {
+                Log.d("block","Error");
+            }
+        }
+    }
 
     //asynchronous class to connect to bluetooth in background
     private class ConnectBT extends AsyncTask<Void, Void, Void>  // UI thread
@@ -190,8 +217,8 @@ public class MotorControl extends AppCompatActivity {
                 if (btSocket == null || !isBtConnected)
                 {
                     myBluetooth = BluetoothAdapter.getDefaultAdapter();//get the mobile bluetooth device
-                    BluetoothDevice dispositivo = myBluetooth.getRemoteDevice(address);//connects to the device's address and checks if it's available
-                    btSocket = dispositivo.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection
+                    BluetoothDevice dispositiv = myBluetooth.getRemoteDevice(address);//connects to the device's address and checks if it's available
+                    btSocket = dispositiv.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection
                     BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
                     btSocket.connect();//start connection
                 }
